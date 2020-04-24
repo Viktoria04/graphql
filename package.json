@@ -67,6 +67,7 @@
     "merge-graphql-schemas": "^1.5.7",
     "mongoose": "^5.9.10",
     "nodemon": "^1.18.10",
+    "serve-favicon": "^2.5.0",
     "uuid": "^3.3.2"
   },
   "engines": {
