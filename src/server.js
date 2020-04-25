@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import jwt from "express-jwt";
+
 const auth = jwt({
     secret: process.env.JWT_SECRET,
     credentialsRequired: false,
@@ -20,13 +21,13 @@ const db = process.env.MONGODB_URL;
 
 const options = {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true, 
     useFindAndModify: false,
     autoIndex: true,
-    useCreateIndex: true
-
+    useCreateIndex: true,
 }
-mongoose.connect(db, options).then(() => {
+
+mongoose.connect(db, options).then(()=>{
     console.log("Connected to MongoDB");
 }).catch(error => console.log(error));
 
@@ -35,16 +36,23 @@ app.use(
     cors(),
     bodyParser.json(),
     auth,
-    expressGraphQL(req => {
+    expressGraphQL( req => {
         return {
             schema,
-            context
-            graphiql: true
+            context: {
+                user: req.user
+            },
+            graphiql: true,
+            formatError: error => ({
+                message: error.mesage,
+                validationErrors: error.originalError && error.originalError.validationErrors,
+                locations: error.locations,
+                path: error.path
+            })
         }
-
     })
 )
 
-app.listen(PORT, () => {
+app.listen(PORT, ()=> {
     console.log(`Server running at: ${PORT}`)
 })
