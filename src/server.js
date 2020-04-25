@@ -15,19 +15,22 @@ const auth = jwt({
 })
 
 const app = express();
+app.listen(process.env.PORT || 3000, function () {
+    console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
+});
 
-const PORT = process.env.PORT || "3000";
+// const PORT = process.env.PORT || "3000";
 const db = process.env.MONGODB_URL;
 
 const options = {
     useNewUrlParser: true,
-    useUnifiedTopology: true, 
+    useUnifiedTopology: true,
     useFindAndModify: false,
     autoIndex: true,
     useCreateIndex: true,
 }
 
-mongoose.connect(db, options).then(()=>{
+mongoose.connect(db, options).then(() => {
     console.log("Connected to MongoDB");
 }).catch(error => console.log(error));
 
@@ -36,7 +39,7 @@ app.use(
     cors(),
     bodyParser.json(),
     auth,
-    expressGraphQL( req => {
+    expressGraphQL(req => {
         return {
             schema,
             context: {
@@ -53,6 +56,6 @@ app.use(
     })
 )
 
-app.listen(PORT, ()=> {
+app.listen(PORT, () => {
     console.log(`Server running at: ${PORT}`)
 })
