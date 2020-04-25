@@ -10,12 +10,19 @@ const UserSchema = new Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
         type: String,
         required: true
     },
+
+    userType: {
+        type: String,
+        required: true,
+    },
+
     games: {
         type: [Game.schema]
     }
