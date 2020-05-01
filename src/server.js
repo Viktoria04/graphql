@@ -5,6 +5,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import schema from "./graphql/GraphQLSchema";
 import dotenv from "dotenv";
+import ValidationError from './graphql/ValidationError';
+
 dotenv.config();
 
 import jwt from "express-jwt";
@@ -15,47 +17,54 @@ const auth = jwt({
 })
 
 const app = express();
-app.listen(process.env.PORT || 3000, function () {
-    console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
-});
 
-// const PORT = process.env.PORT || "3000";
+const PORT = process.env.PORT || "8000";
 const db = process.env.MONGODB_URL;
 
 const options = {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true, 
     useFindAndModify: false,
     autoIndex: true,
     useCreateIndex: true,
 }
 
-mongoose.connect(db, options).then(() => {
+mongoose.connect(db, options).then(()=>{
     console.log("Connected to MongoDB");
 }).catch(error => console.log(error));
 
 app.use(
     "/graphql",
     cors(),
+    // Incase you need to allow cors
+    // cors({
+    //     credentials: true,
+    //     origin: 'http://localhost:3001'
+    // }),
     bodyParser.json(),
     auth,
-    expressGraphQL(req => {
+    expressGraphQL( req => {
         return {
             schema,
             context: {
                 user: req.user
             },
             graphiql: true,
-            formatError: error => ({
-                message: error.mesage,
-                validationErrors: error.originalError && error.originalError.validationErrors,
-                locations: error.locations,
-                path: error.path
-            })
+            formatError: error => {
+                if (error.originalError instanceof ValidationError) {
+                    return {
+                        message: error.mesage,
+                        validationErrors: error.originalError && error.originalError.validationErrors,
+                        // locations: error.locations,
+                        // path: error.path
+                    }
+                }
+                return error
+            }
         }
     })
 )
 
-app.listen(PORT, () => {
+app.listen(PORT, ()=> {
     console.log(`Server running at: ${PORT}`)
 })

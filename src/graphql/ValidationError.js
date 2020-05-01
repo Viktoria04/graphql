@@ -1,4 +1,3 @@
-  
 import { GraphQLError } from 'graphql';
 
 class ValidationError extends GraphQLError {

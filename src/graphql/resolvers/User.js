@@ -88,7 +88,13 @@ export default {
             try {
                 savedUser = await newUser.save();        
             } catch (e) {
-                 console.log('something went wrong');  
+                 if(e.code === 11000){
+                    throw new ValidationError([{
+                        key: 'email',
+                        message: 'email_in_use',
+                    }]);
+                 }
+                 throw new Error(`Cannot create user ${email}`)
             }
             return jsonwebtoken.sign({
                     _id: newUser._id,
@@ -130,17 +136,17 @@ export default {
                 })
             })
         },
-
-        editUser: async (root, args, {user} ) => {
-            //firstName, lastName, email, userType, password, games
+        editUser: async (root, {_id, firstName, lastName, password}, {user} ) => {
             if(!user){
                 throw new Error("User is not authenticated");
             }
-            const { _id, ...set } = args;
-
-            const response = await User.findByIdAndUpdate({_id: args._id}, {$set: set}, {new: true}).exec();
+            const response = await User.findByIdAndUpdate({_id}, {$set: {
+                firstName, 
+                lastName, 
+                password, 
+            }}, {new: true}).exec();
             if(!response){
-                throw new Error(`Cannot save user: ${args._id}`);
+                throw new Error(`Cannot save user: ${_id}`);
             }
             return response;
         }
