@@ -70,7 +70,7 @@
     "nodemon": "^1.18.10",
     "serve": "^11.3.0",
     "uuid": "^3.3.2",
-    "validator": "^13.0.0"
+    "validator": "^13.7.0"
   },
   "engines": {
     "node": "10.3.0"
